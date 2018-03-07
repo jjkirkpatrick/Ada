@@ -76,7 +76,6 @@ class router
     {
         $this->constructURIArray();
 
-        print_r($this->host . '/' . $this->uri['controller'] . (isset($this->uri['action']) ? '/' . $this->uri['action'] : null));
 
         //If the controller chunk of the URI is not set then go to the index page
         //equivalent of index/index
