@@ -1,30 +1,33 @@
-<?php
-?>
 
-<form action="/account/register" method="post" style="border:1px solid #ccc">
-    <div class="container">
-        <h1>Sign Up</h1>
-        <p>Please fill in this form to create an account.</p>
-        <hr>
+<div>
+    <div class="">
+        <div class="loginmodal-container">
+            <h1>Register</h1><br>
+            <p>Please fill in this form to create an account.</p>
+            <form action="/account/register" method="post">
+                <input type="text" name="username" placeholder="Username"
+                       value="<?php echo(isset($this->form[0]) ? $this->form[0] : "") ?>">
+                <input type="text" name="email" placeholder="Email"
+                       value="<?php echo(isset($this->form[1]) ? $this->form[1] : "") ?>">
+                <input type="password" name="password" placeholder="Password"
+                       value="<?php echo(isset($this->form[2]) ? $this->form[2] : "") ?>">
+                <input type="password" name="passwordCheck" placeholder="Password"
+                       value="<?php echo(isset($this->form[3]) ? $this->form[3] : "") ?>">
 
-        <label for="username"><b>username</b></label>
-        <input type="text" placeholder="Enter username" name="username" required>
 
-        <label for="psw"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="password" required>
-
-        <label for="psw-repeat"><b>Repeat Password</b></label>
-        <input type="password" placeholder="Repeat Password" name="passwordCheck" required>
-
-        <label>
-            <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
-        </label>
-
-        <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
-
-        <div class="clearfix">
-            <button type="button" class="cancelbtn">Cancel</button>
-            <button type="submit" class="signupbtn">Sign Up</button>
+                <input type="submit" name="login" class="login loginmodal-submit" value="Login">
+            </form>
+            <?php
+            if (isset($this->form['negativeFeedback'])) {
+                echo "
+                     <div class='alert alert-danger' role='alert'>
+                        <strong>Oh snap!</strong> {$this->form['negativeFeedback']}.
+                     </div>";
+            }
+            ?>
+            <div class=\"login-help\">
+                <a href=\"#\">Register</a> - <a href=\"#\">Forgot Password</a>
+            </div>
         </div>
     </div>
-</form>
+</div>

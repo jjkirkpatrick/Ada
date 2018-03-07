@@ -12,14 +12,23 @@ class view
     //Render the view via a file name
     public function render($filename)
     {
-            //load the view file
-            require "view/" . $filename . '.php';
+        require "view/template/header.php";
+        //load the view file
+        require "view/" . $filename . '.php';
+        require "view/template/footer.php";
     }
 
 
     //helper view function for calling the login page directly
     public function renderLogin()
     {
+        require "view/template/header.php";
         require "view/account/login.php";
+        require "view/template/footer.php";
+    }
+
+    public function renderWithoutHeaderFooter($filename)
+    {
+        require "view/" . $filename . '.php';
     }
 }

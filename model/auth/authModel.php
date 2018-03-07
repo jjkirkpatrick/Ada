@@ -6,7 +6,7 @@
  * Time: 09:04 PM
  */
 
-class accountModel extends model{
+class authModel extends model{
 
 
     public function getUser($username)
@@ -31,14 +31,15 @@ class accountModel extends model{
 
     }
 
-    public function insertUser($username, $pasword)
+    public function insertUser($username, $pasword,$email)
     {
         //Prepare the SQL query with the parametrized variable
         $query = $this->connection->prepare("INSERT INTO users
                                             (name, password, email)
                                             VALUES     (:username,:password,:email)");
         //Execute the query with the actual value substituted for the parameter variable
-        $query->execute(array(':username' => $username, ':password' => $pasword, ':email' => "qwe@qwe.com"));
+        $query->execute(array(':username' => $username, ':password' => $pasword, ':email' => $email));
+
         $count = $query->rowCount();
 
         //Check to see if user is entered, if not return false.

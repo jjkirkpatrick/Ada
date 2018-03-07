@@ -1,37 +1,39 @@
+<div>
+    <div class="">
+        <div class="loginmodal-container">
+            <h1>Login to Your Account</h1><br>
+
+            <?php
+            if (isset($this->form['positiveFeedback'])) {
+                echo "
+                     <div class='alert alert-success' role='alert'>
+                        {$this->form['positiveFeedback']}.
+                     </div>";
+            }
+            ?>
+
+            <form action="/account/login" method="post">
+                <input type="text" name="username" placeholder="Username"
+                       value="<?php echo(isset($this->form[0]) ? $this->form[0] : "") ?>">
+                <input type="password" name="password" placeholder="Password"
+                       value="<?php echo(isset($this->form[1]) ? $this->form[1] : "") ?>">
+                <input type="submit" name="login" class="login loginmodal-submit" value="Login">
+            </form>
+            <?php
+            if (isset($this->form['negativeFeedback'])) {
+                echo "
+                     <div class='alert alert-danger' role='alert'>
+                        <strong>Oh snap!</strong> {$this->form['negativeFeedback']}.
+                     </div>";
+            }
+            ?>
+            <div class=\"login-help\">
+                <a href=\"#\">Register</a> - <a href=\"#\">Forgot Password</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php
-
-print_r($_SESSION);
-
-
-
 ?>
 
-
-<h1>Login view</h1>
-
-
-
-
-<form action="/account/login" method="post">
-    <div class="imgcontainer">
-        <img src="img_avatar2.png" alt="Avatar" class="avatar">
-    </div>
-
-    <div class="container">
-        <label for="username"><b>Username</b></label>
-        <input type="text" placeholder="Enter Username" name="username" required>
-
-        <label for="password"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="password" required>
-
-        <button type="submit">Login</button>
-        <label>
-            <input type="checkbox" checked="checked" name="remember"> Remember me
-        </label>
-    </div>
-
-    <div class="container" style="background-color:#f1f1f1">
-        <button type="button" class="cancelbtn">Cancel</button>
-        <span class="psw">Forgot <a href="#">password?</a></span>
-    </div>
-</form>

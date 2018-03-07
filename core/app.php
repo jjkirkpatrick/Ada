@@ -12,10 +12,7 @@ class app
 
     public function __construct()
     {
-        //Create Session if non exist
-        if (session_id() == '') {
-            session_start();
-        }
+
 
         //Create new router object
         $router = new router();
@@ -23,6 +20,8 @@ class app
         $router->buildRoutes();
         //Load the requested resources
         $router->loadRoute();
+
+
     }
 
 }

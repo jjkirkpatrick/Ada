@@ -10,7 +10,13 @@ class controller
     {
         //Create an instance of the view class
         //enables controllers to directly access the view class
+        $session = new session();
+        $this->user = new authentication();
         $this->view = new View();
+        $this->view->user = $this->user->user;
+        $this->view->session = $session;
+        $this->view->form = $session->getFormData();
+
         //Auto load the model based on the controller name
         //Models must follow the controllernameModel.php format for this to work.
         //alternatively you can specify inside the controller to load a different model.
