@@ -7,13 +7,15 @@
  */
 
 
-
 class router
 {
     //variable to store domain
     private $host;
     //Array storing the processed routes
-    private $routes = array();
+    private $routes = array(
+        'GET' => array(),
+        'POST' => array(),
+    );
     //Variable to store the URI values
     private $uri;
 
@@ -24,24 +26,59 @@ class router
     }
 
 
-    public function buildRoutes()
+    public function get($route)
     {
-        //Load the routes.php file if it exists
-        //routes.php has the routes of the application.
-        if (file_exists("core/routes.php")) {
-            require "core/routes.php";
-        } else {
-            exit("cant find routes");
+        if (is_array($route)) {
+            $_uri = (isset($route['_url']) ? preg_replace('{/$}', '', $route['_url']) : null);
+            $_uri = (isset($_uri) ? preg_replace('(\[:host\])', $this->host, $_uri) : null);
+
+            $r = array(
+                'uri' => $_uri,
+                'controller' => (isset($route['controller']) ? $route['controller'] : null),
+                'action' => (isset($route['action']) ? $route['action'] : null)
+            );
+
+            //Push the altered route to the routes array
+            array_push($this->routes['GET'], $r);
+
         }
 
-        //for each route in the file
-        foreach ($routes as $r) {
-            //for each line replace the wildcard {h} with the value of $this->host
-            //this allows routes to work on any domain easily
-            $new_route = preg_replace('{/$}', '', $r);
-            $string = preg_replace('/{h}/', $this->host, $new_route);
+    }
+
+
+    public function post($route)
+    {
+        if (is_array($route)) {
+            $_uri = (isset($route['_url']) ? preg_replace('{/$}', '', $route['_url']) : null);
+            $_uri = (isset($_uri) ? preg_replace('(\[:host\])', $this->host, $_uri) : null);
+
+            $r = array(
+                'uri' => $_uri,
+                'controller' => (isset($route['controller']) ? $route['controller'] : null),
+                'action' => (isset($route['action']) ? $route['action'] : null)
+            );
+
             //Push the altered route to the routes array
-            array_push($this->routes, $string);
+            array_push($this->routes['POST'], $r);
+        }
+
+    }
+
+
+    public function invalid($route)
+    {
+        if (is_array($route)) {
+            $_uri = (isset($route['_url']) ? preg_replace('{/$}', '', $route['_url']) : null);
+            $_uri = (isset($_uri) ? preg_replace('(\[:host\])', $this->host, $_uri) : null);
+
+            $r = array(
+                'uri' => $_uri,
+                'controller' => (isset($route['controller']) ? $route['controller'] : null),
+                'action' => (isset($route['action']) ? $route['action'] : null)
+            );
+
+            //Push the altered route to the routes array
+            $this->routes['invalidRoute'] = $r;
         }
     }
 
@@ -59,8 +96,8 @@ class router
             $count = (isset($url) ? count($url) : 0);
             $vars = array();
 
-            if(isset($url[1])){
-                for ($i = 2; $i < $count ; $i++) {
+            if (isset($url[1])) {
+                for ($i = 2; $i < $count; $i++) {
                     array_push($vars, $url[$i]);
                 }
             }
@@ -68,7 +105,7 @@ class router
             $this->uri = [
                 'controller' => (isset($url[0]) ? $url[0] : null),
                 'action' => (isset($url[1]) ? $url[1] : null),
-                'var' => (isset($vars[1]) ? $vars: null),
+                'var' => (isset($vars[1]) ? $vars : null),
             ];
         }
     }
@@ -78,39 +115,45 @@ class router
     {
         $this->constructURIArray();
 
+        if ($this->uri) {
+            foreach ($this->routes[$_SERVER['REQUEST_METHOD']] as $key => $value) {
+                if ($value['uri'] == ($this->host . '/' . $this->uri['controller'] . (isset($this->uri['action']) ? '/' . $this->uri['action'] : null))) {
 
-
-        //If the controller chunk of the URI is not set then go to the index page
-        //equivalent of index/index
-        if ($this->uri['controller'] == '') {
-            //load the controller
+                    //load the controller for the route
+                    require "controller/" . $value['controller'] . '.php';
+                    $controller = new $value['controller']();
+                    //if an action is set, test if it exists in the controller and call it, else call index
+                    if (isset($value['action'])) {
+                        if (method_exists($controller, $value['action'])) {
+                            $controller->{$value['action']}($this->uri['var']);
+                        } else {
+                            $controller->{"index"}();
+                        }
+                        //if controller is set but no method go the index of the controller.
+                    } else {
+                        $controller->{"index"}();
+                    }
+                    //found match
+                    die();
+                }
+            }
+            if(isset($this->routes['invalidRoute'])){
+                require "controller/" . $this->routes['invalidRoute']['controller'] . '.php';
+                $controller = $this->routes['invalidRoute']['controller'];
+                $controller = new $controller();
+                if (isset($this->routes['invalidRoute']['action'])){
+                    $action = $this->routes['invalidRoute']['action'];
+                    $controller->$action();
+                }else{
+                    $controller->index();
+                }
+            }
+        } else {
             require "controller/index.php";
             //create an instance of the controller and call the index function
             $controller = new index();
             $controller->index();
-            //if the controller chunk is set check the constructed URI with the valid built routes.
-        } elseif (in_array($this->host . '/' . $this->uri['controller'] . (isset($this->uri['action']) ? '/' . $this->uri['action'] : null), $this->routes)) {
-            //load the controller for the route
-            require "controller/" . $this->uri['controller'] . '.php';
-            $controller = new $this->uri['controller']();
-            //if an action is set, test if it exists in the controller and call it, else call index
-            if (isset($this->uri['action'])) {
-                if (method_exists($controller, $this->uri['action'])) {
-                    $controller->{$this->uri['action']}($this->uri['var']);
-                } else {
-                    $controller->{"index"}();
-                }
-                //if controller is set but no method go the index of the controller.
-            } else {
-                $controller->{"index"}();
-            }
-            //if the route is not valid end the application
-        } else {
-            die(" invalid route");
         }
 
-
     }
-
-
 }

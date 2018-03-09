@@ -5,7 +5,7 @@
 
         <div class="jumbotron">
             <h1 class="display-3">
-                <?php echo($this->user->profile->firstName != false ? "Welcome {$this->user->profile->firstName} {$this->user->profile->middleName} {$this->user->profile->surname} " : "Not logged in ") ?>
+                <?php echo($this->user->profile->firstName != false ? "Welcome {$this->user->profile->firstName} {$this->user->profile->middleName} {$this->user->profile->surname} " : "Please update your profile") ?>
             </h1>
         </div>
 

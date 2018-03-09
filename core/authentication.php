@@ -56,7 +56,6 @@ class authentication
                 //get the user via the username provided in the post request
                 $user = $this->model->getUser($username);
                 //if the user exists
-
                 if ($user['name']) {
                     //verify the password
                     if (password_verify($password, $user['password'])) {
@@ -125,6 +124,7 @@ class authentication
                     if ($this->model->getUser($username) == false) {
                         //insert the data in to the database
                         if ($this->model->insertUser($username, password_hash($password, PASSWORD_DEFAULT), $email)) {
+
                             $this->session->add("form", array(
                                 'positiveFeedback' => "Account created successfully"
                             ));
@@ -209,6 +209,7 @@ class authentication
             //Check that both passwords provided are matching
             //request the user $username, if nothing is returned then the username is usable
             $updated = $this->model->updateProfile(
+                $this->user->name,
                 $userID,
                 $firstName,
                 $middleName,

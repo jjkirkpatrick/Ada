@@ -23,11 +23,11 @@ class profile extends controller
 
     public function edit()
     {
-        if ($this->methodType() == 'POST') {
-            $this->user->editProfile();
-        } else {
             $this->view->render("profile/edit");
-        }
     }
 
+    public function submitEdit()
+    {
+        $this->user->editProfile();
+    }
 }

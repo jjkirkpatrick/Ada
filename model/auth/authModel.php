@@ -23,7 +23,6 @@ class authModel extends model{
         $query->execute(array(':username' => $username));
         $result = $query->fetch(PDO::FETCH_ASSOC);
 
-
         //Check to see if user is returned, if not return false.
         if ($query->rowCount() == 1) {
             return $result;
@@ -55,22 +54,21 @@ class authModel extends model{
         }
     }
 
-
     public function getProfile($username)
     {
 
         $sql = "SELECT
                   users.id,
-                  PROFILE.firstName,
-                  PROFILE.middleName,
-                  PROFILE.surname,
-                  PROFILE.height,
-                  PROFILE.weight,
-                  PROFILE.systolicBloodPressure,
-                  PROFILE.diastolicBloodPressure
+                  profile.firstName,
+                  profile.middleName,
+                  profile.surname,
+                  profile.height,
+                  profile.weight,
+                  profile.systolicBloodPressure,
+                  profile.diastolicBloodPressure
               FROM
                   users
-              INNER JOIN PROFILE ON users.id = PROFILE.userID
+              INNER JOIN profile ON users.id = profile.userID
               WHERE
                   users.name = :username";
 
@@ -88,11 +86,11 @@ class authModel extends model{
 
     }
 
-    public function updateProfile($userID, $firstName, $middleName, $surname, $height, $weight, $systolic, $diastolic) {
 
-
-        $sql = "
-              UPDATE PROFILE
+     public function updateProfile($username, $userID, $firstName, $middleName, $surname, $height, $weight, $systolic, $diastolic) {
+            if($this->getProfile($username)){
+                $sql = "
+              UPDATE profile
               SET
                   firstName = :firstName,
                   middleName = :middleName,
@@ -105,10 +103,62 @@ class authModel extends model{
                   userID = :userID
             ";
 
+                //Prepare the SQL query with the parametrized variable
+                $query = $this->connection->prepare($sql);
+
+                $query->execute(array(
+                    ':firstName' => $firstName,
+                    ':middleName' => $middleName,
+                    ':surname' => $surname,
+                    ':height' => $height,
+                    ':weight' => $weight,
+                    ':systolic' => $systolic,
+                    ':diastolic' => $diastolic,
+                    ':userID' => $userID
+                ));
+
+                $count = $query->rowCount();
+                //Check to see if user is entered, if not return false.
+                if ($count == 1) {
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return $this->createProfile($userID, $firstName, $middleName, $surname, $height, $weight, $systolic, $diastolic);
+            }
+    }
+
+
+    public function createProfile($userID, $firstName, $middleName, $surname, $height, $weight, $systolic, $diastolic)
+    {
+        $sql = "
+            INSERT INTO profile(
+            userID,
+            firstName,
+            middleName,
+            surname,
+            height,
+            weight,
+            systolicBloodPressure,
+            diastolicBloodPressure)
+            VALUES (
+            :userID,
+            :firstName,
+            :middleName,
+            :surname,
+            :height,
+            :weight,
+            :systolic,
+            :diastolic)
+            ";
+
+
         //Prepare the SQL query with the parametrized variable
         $query = $this->connection->prepare($sql);
         //Execute the query with the actual value substituted for the parameter variable
         $query->execute(array(
+            ':userID' => $userID,
             ':firstName' => $firstName,
             ':middleName' => $middleName,
             ':surname' => $surname,
@@ -116,10 +166,10 @@ class authModel extends model{
             ':weight' => $weight,
             ':systolic' => $systolic,
             ':diastolic' => $diastolic,
-            ':userID' => $userID
         ));
 
         $count = $query->rowCount();
+
         //Check to see if user is entered, if not return false.
         if ($count == 1) {
             return true;
@@ -127,8 +177,5 @@ class authModel extends model{
             return false;
         }
     }
-
-
-
 
 }
