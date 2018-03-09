@@ -24,4 +24,8 @@ $routes = array(
     '{h}/account/logout',
     '{h}/index',
     '{h}/test/test',
+    '{h}/profile',
+    '{h}/profile/edit',
+    '{h}/health/',
+    '{h}/health/index',
 );

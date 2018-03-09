@@ -1,15 +1,17 @@
 <?php
 
+
+
 //use this as a base to extend models from
 class model
 {
     private static $_instance;
     private $_connection;
-    private $DB_host = "192.168.0.2";
-    private $DB_user_name = "Sa";
-    private $DB_user_password = "Pa55word";
-    private $DB_driver = "sqlsrv";
-    private $DB_database = "WebServices";
+    private $DB_host = "localhost";
+    private $DB_user_name = "root";
+    private $DB_user_password = "";
+    private $DB_driver = "mysql";
+    private $DB_database = "hospi";
 
     public $connection;
     public static function init()
@@ -30,7 +32,7 @@ class model
     {
         try {
             if (is_null($this->_connection) || empty($this->_connection)) {
-                $this->_connection = new \PDO($this->DB_driver.':server='.$this->DB_host.';Database='.$this->DB_database, $this->DB_user_name, $this->DB_user_password);
+                $this->_connection = new PDO($this->DB_driver.':host='.$this->DB_host.';dbname='.$this->DB_database, $this->DB_user_name, $this->DB_user_password);
             }
         } catch (Exception $e) {
             $this->_connection = $e;
@@ -42,5 +44,6 @@ class model
     public function connect()
     {
         return $this->_connection ? $this->_connection : null;
+
     }
 }

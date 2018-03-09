@@ -5,17 +5,18 @@
 class controller
 {
     public $view;
-
+    //todo Split up the way this is working, too much shit happening in the constructor for the controllers.
     public function __construct()
     {
         //Create an instance of the view class
         //enables controllers to directly access the view class
-        $session = new session();
+        $this->session = new session();
         $this->user = new authentication();
-        $this->view = new View();
+        $this->view = new view();
         $this->view->user = $this->user->user;
-        $this->view->session = $session;
-        $this->view->form = $session->getFormData();
+
+        $this->view->session = $this->session;
+        $this->view->form = $this->session->getFormData();
 
         //Auto load the model based on the controller name
         //Models must follow the controllernameModel.php format for this to work.
@@ -23,6 +24,7 @@ class controller
         $this->model = $this->loadmodel(get_class($this) . "Model");
 
     }
+
 
 
     public function loadmodel($modelName)
@@ -38,7 +40,7 @@ class controller
     //if not redirect to the login view
     public function requireAuth()
     {
-        if(!isset($_SESSION['userID'])){
+        if(!$this->user->user->authenticated){
             $this->view->renderLogin();
             exit();
         }

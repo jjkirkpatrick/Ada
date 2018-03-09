@@ -31,4 +31,10 @@ class view
     {
         require "view/" . $filename . '.php';
     }
+
+    public function loadSnippit($snippet)
+    {
+        require "view/snippits/" . $snippet . '.php';
+    }
+
 }

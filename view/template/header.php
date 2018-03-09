@@ -7,8 +7,6 @@
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 
-
-
 <style>
     body {
         padding-top: 60px; /* This should be equal to the height of your header */
@@ -22,25 +20,9 @@
     </button>
     <a class="navbar-brand" href="#">Framework Oisain</a>
 
-    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+    <div class="collapse navbar-collapse" id="">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#">Disabled</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown01">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </li>
+            <?php $this->loadSnippit("/template/header");?>
         </ul>
         <?php
         if($this->user->authenticated === false){
@@ -48,60 +30,28 @@
         <button type='button' class='btn btn-outline-primary' data-toggle='modal' data-target='#login-modal'>Login</button>
         <button type='button' class='btn btn-outline-primary' data-toggle='modal' data-target='#Register-modal'>Register</button>
         ";
-
         }else{
-            echo "<span class='navbar-text padd'>Welcome {$this->user->username}</span>
+            echo "<span class='navbar-text padd'>Welcome {$this->user->name}</span>
                 <form action='/account/logout' class='form-inline my-2 my-lg-0'>
                                     <button class='btn btn-outline-success my-2 my-sm-0' type='submit'>Logout</button>
                 </form>
             ";
-
         }
         ?>
-
     </div>
 </nav>
 
 
 <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog">
-        <div class="loginmodal-container">
-            <h1>Login to Your Account</h1><br>
-            <form action="/account/login" method="post">
-                <input type="text" name="username" placeholder="Username" value="<?php echo  (isset($this->form[0]) ? $this->form[0]: "" )?>">
-                <input type="password" name="password" placeholder="Password" value="<?php echo  (isset($this->form[1]) ? $this->form[1]: "" )?>">
-                <input type="submit" name="login" class="login loginmodal-submit" value="Login">
-            </form>
+        <?php $this->loadSnippit("/auth/login");?>
 
-            <?php
-            if ($this->form['negativeFeedback']) {
-                echo "
-                     <div class='alert alert-danger' role='alert'>
-                        <strong>Oh snap!</strong> {$this->form['negativeFeedback']}.
-                     </div>";
-            }
-            ?>
-
-            <div class="login-help">
-                <a href="#">Register</a> - <a href="#">Forgot Password</a>
-            </div>
-        </div>
     </div>
 </div>
 
 <div class="modal fade" id="Register-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog">
-        <div class="loginmodal-container">
-            <h1>Register Account</h1><br>
-            <form action="/account/login" method="post">
-                <input type="text" name="username" placeholder="Username">
-                <input type="password" name="password" placeholder="Password">
-                <input type="submit" name="login" class="login loginmodal-submit" value="Login">
-            </form>
-
-            <div class="login-help">
-                <a href="#">Register</a> - <a href="#">Forgot Password</a>
-            </div>
-        </div>
+        <?php $this->loadSnippit("/auth/register");?>
     </div>
 </div>
+

@@ -8,7 +8,7 @@
 
     <div class="jumbotron">
         <h1 class="display-3">
-            <?php  echo ($this->user->authenticated != false ? "Welcome {$this->user->username} You are logged in! " :  "Not logged in ")  ?>
+            <?php  echo ($this->user->authenticated != false ? "Welcome {$this->user->name} You are logged in! " :  "Not logged in ")  ?>
         </h1>
         <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
 
@@ -16,8 +16,6 @@
         <?php  echo ($this->user->authenticated == false ? "<a class='btn btn-lg btn-success' href='#' role='button' >Sign up today</a>
                                                             <a class='btn btn-lg btn-success' href='#' role='button' data-toggle='modal' data-target='#login-modal'>Login </a>"
                                                             :  "")?>
-
-
 
     </div>
     <div class="row marketing">

@@ -6,12 +6,13 @@
  * Time: 13:17
  */
 
+
+
 class session
 {
 
     public function __construct()
     {
-        //Create Session if non exist
         if (session_id() == '') {
             session_start();
         }
@@ -61,6 +62,29 @@ class session
         $data =  (isset($_SESSION['form']) ? $this->getSessionArray('form') :  null);
         unset($_SESSION['form']);
         return $data;
+    }
+
+    //todo This should be moved in to a security classW
+    public function getCSRF()
+    {
+        if (isset($_SESSION['CSRF']) && $_SESSION['CSRF']['Expiry'] > date("Y-m-d H:i:s")) {
+            return $_SESSION['CSRF']['Token'];
+        }else{
+            $_SESSION['CSRF'] = array(
+                'Token' => base64_encode(openssl_random_pseudo_bytes(32)),
+                'Expiry' => date("Y-m-d H:i:s", strtotime("+1 hours"))
+            );
+            return $_SESSION['CSRF']['Token'];
+        }
+    }
+
+    public function checkCSRF($csrf)
+    {
+        if ($csrf === $_SESSION['CSRF']['Token']) {
+            return true;
+        }else{
+            return false;
+        }
     }
 
 

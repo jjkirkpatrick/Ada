@@ -6,6 +6,8 @@
  * Time: 04:21 PM
  */
 
+
+
 class router
 {
     //variable to store domain
@@ -36,16 +38,16 @@ class router
         foreach ($routes as $r) {
             //for each line replace the wildcard {h} with the value of $this->host
             //this allows routes to work on any domain easily
-            $new_route = preg_replace('/{h}/', $this->host, $r);
+            $new_route = preg_replace('{/$}', '', $r);
+            $string = preg_replace('/{h}/', $this->host, $new_route);
             //Push the altered route to the routes array
-            array_push($this->routes, $new_route);
+            array_push($this->routes, $string);
         }
     }
 
 
     public function constructURIArray()
     {
-
         //If the url is actually set
         if (isset($_GET['url'])) {
             //remore any trailing slashes
@@ -75,6 +77,7 @@ class router
     public function loadRoute()
     {
         $this->constructURIArray();
+
 
 
         //If the controller chunk of the URI is not set then go to the index page

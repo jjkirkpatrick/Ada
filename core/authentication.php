@@ -6,6 +6,10 @@
  * Time: 10:00
  */
 
+
+//this class will now automatically load all user variables and all profile variables dynamically.
+
+
 class authentication
 {
     private $model;
@@ -18,20 +22,29 @@ class authentication
         $this->model = $this->loadmodel();
         $this->session = new session();
         $this->buildUser();
+        return $this->user;
     }
 
 
     private function buildUser()
     {
         $this->user = new stdclass();
-        $this->user->authenticated = ($this->session->exists('user', 'userid') ? true : false);
+        $this->user->authenticated = ($this->session->exists('user', 'id') ? true : false);
         if ($this->user->authenticated) {
-            $this->user->userID = ($this->session->exists('user', 'userid') ? $this->session->get('user', 'userid') : null);
-            $this->user->username = ($this->session->exists('user', 'username') ? $this->session->get('user', 'username') : null);
-            $this->user->email = ($this->session->exists('user', 'useremail') ? $this->session->get('user', 'useremail') : null);
+            foreach ($this->session->getSessionArray('user') as $key => $value) {
+                if ($key != 'password') {
+                    $this->user->$key = ($value ? $value : '');
+                }
+            }
+
+            $this->user->profile = new stdClass();
+            foreach ($this->session->getSessionArray('user.profile') as $key => $value) {
+                if (isset($key) && isset($value)){
+                    $this->user->profile->$key = (isset($value) ? $value : "");
+                }
+            }
         }
     }
-
 
     public function login()
     {
@@ -39,34 +52,55 @@ class authentication
         if (isset($_POST['username']) and isset($_POST['password'])) {
             $username = $_POST['username'];
             $password = $_POST['password'];
-            //get the user via the username provided in the post request
-            $user = $this->model->getUser($username);
-            //if the user exists
-            if ($user[0]['name']) {
-                //verify the password
-                if (password_verify($password, $user[0]['password'])) {
-                    //set the required session variables
-                    $this->session->add("user", array(
-                        'userid' => $user[0]['id'],
-                        'username' => $user[0]['name'],
-                        'useremail' => $user[0]['email']
-                    ));
-                    header('Location:/');
+            if ($this->session->checkCSRF($_POST['CSRF'])) {
+                //get the user via the username provided in the post request
+                $user = $this->model->getUser($username);
+                //if the user exists
+
+                if ($user['name']) {
+                    //verify the password
+                    if (password_verify($password, $user['password'])) {
+                        //set the required session variables
+
+                        $u = array();
+                        foreach ($user as $key => $value) {
+                            $u[$key] = $value;
+                        }
+
+                        $p = array();
+                        foreach ($this->model->getProfile($username) as $key => $value) {
+                            $p[$key] = $value;
+                        }
+
+                        $this->session->add("user", $u);
+                        $this->session->add("user.profile", $p);
+
+                        header('Location:/');
+                    } else {
+                        //exit if the password isn't correct
+                        $this->session->add("form", array(
+                            $username,
+                            $password,
+                            'negativeFeedback' => "Password not recognized"
+                        ));
+                        header('Location:/account/login');
+                    }
                 } else {
                     //exit if the password isn't correct
                     $this->session->add("form", array(
                         $username,
                         $password,
-                        'negativeFeedback' => "Password not recognized"
+                        'negativeFeedback' => "Username not recognized"
                     ));
                     header('Location:/account/login');
                 }
             } else {
-                //exit if the password isn't correct
+                //if the CSRF failed then just send the user back to the form, possiable that the csrf token
+                // can expire between page load and submit.
                 $this->session->add("form", array(
                     $username,
                     $password,
-                    'negativeFeedback' => "Username not recognized"
+                    'negativeFeedback' => "Error occurred, please try again."
                 ));
                 header('Location:/account/login');
             }
@@ -83,45 +117,57 @@ class authentication
             $password = $_POST['password'];
             $passwordCheck = $_POST['passwordCheck'];
             $email = $_POST['email'];
-            //Check that both passwords provided are matching
-            if ($password === $passwordCheck) {
-                //request the user $username, if nothing is returned then the username is userable
-                if ($this->model->getUser($username) == false) {
-                    //insert the data in to the database
-                    if ($this->model->insertUser($username, password_hash($password, PASSWORD_DEFAULT), $email)) {
-                        $this->session->add("form", array(
-                            'positiveFeedback' => "Account created successfully"
-                        ));
-                        header('Location:/account/login');
+
+            if ($this->session->checkCSRF($_POST['CSRF'])) {
+                //Check that both passwords provided are matching
+                if ($password === $passwordCheck) {
+                    //request the user $username, if nothing is returned then the username is userable
+                    if ($this->model->getUser($username) == false) {
+                        //insert the data in to the database
+                        if ($this->model->insertUser($username, password_hash($password, PASSWORD_DEFAULT), $email)) {
+                            $this->session->add("form", array(
+                                'positiveFeedback' => "Account created successfully"
+                            ));
+                            header('Location:/account/login');
+                        } else {
+                            $this->session->add("form", array(
+                                $username,
+                                $email,
+                                $password,
+                                $password,
+                                'negativeFeedback' => "Unknown Error Try again later"
+                            ));
+                            header('Location:/account/register');
+                        }
                     } else {
+                        //exit if the user does not exist
                         $this->session->add("form", array(
                             $username,
                             $email,
                             $password,
                             $password,
-                            'negativeFeedback' => "Unknown Error Try again later"
+                            'negativeFeedback' => "Username taken!"
                         ));
                         header('Location:/account/register');
                     }
                 } else {
-                    //exit if the user does not exist
+                    //exit if the passwords don't match
                     $this->session->add("form", array(
                         $username,
                         $email,
                         $password,
                         $password,
-                        'negativeFeedback' => "Username taken!"
+                        'negativeFeedback' => "Passwords do not match!"
                     ));
                     header('Location:/account/register');
                 }
             } else {
-                //exit if the passwords don't match
                 $this->session->add("form", array(
                     $username,
                     $email,
                     $password,
                     $password,
-                    'negativeFeedback' => "Passwords do not match!"
+                    'negativeFeedback' => "Error occurred. Please try again."
                 ));
                 header('Location:/account/register');
             }
@@ -145,6 +191,64 @@ class authentication
         session_destroy();
         //redirect to the root of the app
         header('Location:/');
+    }
+
+
+    public function editProfile()
+    {
+        $userID = (isset($_POST['userID']) ? $_POST['userID'] : "");
+        $firstName = (isset($_POST['firstName']) ? $_POST['firstName'] : "");
+        $middleName = (isset($_POST['middleName']) ? $_POST['middleName'] : "");
+        $surname = (isset($_POST['surname']) ? $_POST['surname'] : "");
+        $height = (isset($_POST['height']) ? $_POST['height'] : "");
+        $weight = (isset($_POST['weight']) ? $_POST['weight'] : "");
+        $systolic = (isset($_POST['systolic']) ? $_POST['systolic'] : "");
+        $diastolic = (isset($_POST['diastolic']) ? $_POST['diastolic'] : "");
+
+        if ($this->session->checkCSRF($_POST['CSRF'])) {
+            //Check that both passwords provided are matching
+            //request the user $username, if nothing is returned then the username is usable
+            $updated = $this->model->updateProfile(
+                $userID,
+                $firstName,
+                $middleName,
+                $surname,
+                $height,
+                $weight,
+                $systolic,
+                $diastolic
+            );
+
+            if ($updated) {
+                $this->session->add("form", array(
+                    'positiveFeedback' => "Profile Updated"
+                ));
+                $this->regenerateUser();
+                header('Location:/profile/edit');
+            } else {
+                $this->session->add("form", array(
+                    'negativeFeedback' => "Unable to update profile. Did you change any values?"
+                ));
+                header('Location:/profile/edit');
+            }
+        }
+    }
+
+
+    public function regenerateUser()
+    {
+        $u = array();
+        foreach ($user = $this->model->getUser($this->user->name) as $key => $value) {
+            $u[$key] = $value;
+        }
+
+        $p = array();
+        foreach ($this->model->getProfile($this->user->name) as $key => $value) {
+            $p[$key] = $value;
+        }
+
+        $this->session->add("user", $u);
+        $this->session->add("user.profile", $p);
     }
 
 
