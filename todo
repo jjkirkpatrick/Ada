@@ -1,9 +1,0 @@
-//todo email support
-//todo password reset
-//todo caching support
-//todo api authentication maybe
-//todo a nice way to get file system resources
-//todo error handling / logging
-//todo fix up the routing class
-//todo form validation / use a form class to this to construct forms and validation
-//todo xss filtering

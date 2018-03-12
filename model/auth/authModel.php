@@ -54,7 +54,7 @@ class authModel extends model{
         }
     }
 
-    public function getProfile($username)
+    public function getProfileByUserName($username)
     {
 
         $sql = "SELECT
@@ -83,12 +83,42 @@ class authModel extends model{
         }else{
             return false;
         }
+    }
 
+    public function getProfileByUserID($userID)
+    {
+
+        $sql = "SELECT
+                  users.id,
+                  profile.firstName,
+                  profile.middleName,
+                  profile.surname,
+                  profile.height,
+                  profile.weight,
+                  profile.systolicBloodPressure,
+                  profile.diastolicBloodPressure
+              FROM
+                  users
+              INNER JOIN profile ON users.id = profile.userID
+              WHERE
+                  users.id = :userID";
+
+        //Prepare the SQL query with the parametrized variable
+        $query = $this->connection->prepare($sql);
+        //Execute the query with the actual value substituted for the parameter variable
+        $query->execute(array(':userID' => $userID));
+        $result = $query->fetch(PDO::FETCH_ASSOC);
+        //Check to see if user is returned, if not return false.
+        if ($query->rowCount() == 1) {
+            return $result;
+        }else{
+            return false;
+        }
     }
 
 
      public function updateProfile($username, $userID, $firstName, $middleName, $surname, $height, $weight, $systolic, $diastolic) {
-            if($this->getProfile($username)){
+            if($this->getProfileByUserName($username)){
                 $sql = "
               UPDATE profile
               SET

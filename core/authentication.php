@@ -67,7 +67,7 @@ class authentication
                         }
 
                         $p = array();
-                        foreach ($this->model->getProfile($username) as $key => $value) {
+                        foreach ($this->model->getProfileByUserName($username) as $key => $value) {
                             $p[$key] = $value;
                         }
 
@@ -244,12 +244,17 @@ class authentication
         }
 
         $p = array();
-        foreach ($this->model->getProfile($this->user->name) as $key => $value) {
+        foreach ($this->model->getProfileByUserName($this->user->name) as $key => $value) {
             $p[$key] = $value;
         }
 
         $this->session->add("user", $u);
         $this->session->add("user.profile", $p);
+    }
+
+    public function getProfileByID($userId)
+    {
+        return $this->model->getProfileByUserID($userId);
     }
 
 
